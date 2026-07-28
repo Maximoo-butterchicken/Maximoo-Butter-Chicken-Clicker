@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maximoo Butter Chicken Clicker</title>
+<style>
+  :root {
+    --bg-dark: #2b1710;
+    --bg-panel: #3a2015;
+    --bg-panel-light: #4a2a1a;
+    --accent: #e8971f;
+    --accent-light: #ffc861;
+    --accent-dark: #b5720f;
+    --text-light: #fbe8d3;
+    --text-dim: #cba079;
+    --green: #7cbf5e;
+    --red: #d15c4f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
+    background: radial-gradient(ellipse at top, #4a2712 0%, var(--bg-dark) 70%);
+    color: var(--text-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+  }
+
+  h1 {
+    margin: 4px 0 2px 0;
+    font-size: 2rem;
+    color: var(--accent-light);
+    text-shadow: 2px 2px 0 #00000055;
+    letter-spacing: 1px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+  }
+
+  .shop-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    background: var(--bg-panel);
+    border: 1px solid var(--accent-dark);
+    border-radius: 10px;
+    padding: 6px 14px;
+  }
+
+  #shopNameDisplay {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--accent-light);
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #renameBtn {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+
+  #shopNameInput {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--accent-dark);
+    background: var(--bg-panel-light);
+    color: var(--text-light);
+    max-width: 220px;
+  }
+
+  .layout {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .panel {
+    background: var(--bg-panel);
+    border: 2px solid var(--accent-dark);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+
+  /* --- Left: clicker area --- */
+  .clicker-panel {
+    flex: 1 1 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 280px;
+  }
+
+  .coin-count {
+    font-size: 2.1rem;
+    font-weight: bold;
+    color: var(--accent-light);
+    text-align: center;
+  }
+
+  .coin-sub {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .click-area {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 14px 0;
+  }
+
+  #bowl {
+    font-size: 130px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.08s ease;
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.5));
+  }
+
+  #bowl:active {
+    transform: scale(0.88) rotate(-4deg);
+  }
+
+  .float-text {
+    position: absolute;
+    pointer-events: none;
+    font-weight: bold;
+    color: var(--accent-light);
+    font-size: 1.1rem;
+    animation: floatUp 0.9s ease-out forwards;
+    text-shadow: 1px 1px 2px black;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translate(0,0); }
+    100% { opacity: 0; transform: translate(var(--dx,0px), -80px); }
+  }
+
+  .stats {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .prestige-box {
+    margin-top: 14px;
+    width: 100%;
+    text-align: center;
+    border-top: 1px dashed var(--accent-dark);
+    padding-top: 10px;
+  }
+
+  .prestige-box button {
+    margin-top: 6px;
+  }
+
+  /* --- Right: shop --- */
+  .shop-panel {
+    flex: 1 1 380px;
+    min-width: 300px;
+    max-height: 640px;
+    overflow-y: auto;
+  }
+
+  .shop-panel h2 {
+    margin-top: 0;
+    color: var(--accent-light);
+    font-size: 1.2rem;
+    border-bottom: 2px solid var(--accent-dark);
+    padding-bottom: 6px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 6px;
+    border: none;
+    border-radius: 8px;
+    background: var(--bg-panel-light);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.85rem;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: #2b1710;
+  }
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-panel-light);
+    border: 1px solid var(--accent-dark);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .item:hover:not(.disabled) {
+    background: #5a3520;
+    transform: translateX(2px);
+  }
+
+  .item.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .item-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-name {
+    font-weight: bold;
+    color: var(--text-light);
+    font-size: 0.95rem;
+  }
+
+  .item-desc {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .item-cost {
+    font-weight: bold;
+    color: var(--accent-light);
+    white-space: nowrap;
+    margin-left: 10px;
+    text-align: right;
+    font-size: 0.85rem;
+  }
+
+  .item-count {
+    display: inline-block;
+    background: var(--accent-dark);
+    color: var(--text-light);
+    border-radius: 6px;
+    padding: 1px 7px;
+    font-size: 0.75rem;
+    margin-left: 6px;
+  }
+
+  button {
+    font-family: inherit;
+    background: var(--accent);
+    color: #2b1710;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  button:hover { background: var(--accent-light); }
+  button:disabled { background: #6b5540; color: #a89a89; cursor: not-allowed; }
+
+  .toast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--green);
+    color: #142408;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show { opacity: 1; }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--accent-dark); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<h1>🍛 Maximoo Butter Chicken Clicker</h1>
+<div class="subtitle">Simmer your way from a single pot to a global curry empire.</div>
+
+<div class="shop-name-row">
+  <span id="shopNameDisplay">Maximoo's Butter Chicken Shop</span>
+  <button id="renameBtn" title="Rename your shop">✏️ Rename</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="layout">
+
+  <!-- CLICKER -->
+  <div class="panel clicker-panel">
+    <div class="coin-count" id="coinCount">0</div>
+    <div class="coin-sub">Butter Points</div>
+
+    <div class="click-area">
+      <div id="bowl">🍛</div>
+    </div>
+
+    <div class="stats">
+      <div>Per click: <b id="clickPowerDisplay">1</b> BP</div>
+      <div>Per second: <b id="cpsDisplay">0</b> BP</div>
+      <div>Lifetime earned: <b id="lifetimeDisplay">0</b> BP</div>
+    </div>
+
+    <div class="prestige-box">
+      <div>👨‍🍳 Michelin Stars: <b id="starCount">0</b> (+<span id="starBonus">0</span>% BP)</div>
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-top:4px;">
+        Retire your restaurant to earn Michelin Stars for a permanent boost.
+        <br>Would earn: <b id="starGain">0</b> stars
+      </div>
+      <button id="prestigeBtn">Retire &amp; Earn Stars</button>
+    </div>
+  </div>
+
+  <!-- SHOP -->
+  <div class="panel shop-panel">
+    <h2>Kitchen Shop</h2>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="buildings">Staff &amp; Equipment</button>
+      <button class="tab-btn" data-tab="upgrades">Upgrades</button>
+    </div>
+    <div class="tabs" id="buyAmountTabs">
+      <button class="tab-btn amount-btn active" data-amount="1">Buy x1</button>
+      <button class="tab-btn amount-btn" data-amount="10">Buy x10</button>
+      <button class="tab-btn amount-btn" data-amount="100">Buy x100</button>
+      <button class="tab-btn amount-btn" data-amount="max">Buy Max</button>
+    </div>
+    <div id="buildingsList"></div>
+    <div id="upgradesList" style="display:none;"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+
+  // ---------- Game State (in-memory only, no persistence) ----------
+  const state = {
+    coins: 0,
+    lifetime: 0,
+    clickBase: 1,
+    clickFlatBonus: 0,
+    clickMultiplier: 1,
+    stars: 0,
+    buildings: {}, // id -> count
+    shopName: "Maximoo's Butter Chicken Shop",
+  };
+
+  // ---------- Buildings (auto-generators) ----------
+  const buildings = [
+    { id: 'naan', name: 'Naan Baker', desc: 'A friend who bakes naan on the side.', baseCost: 15, cps: 0.1, emoji: '🫓' },
+    { id: 'grinder', name: 'Spice Grinder', desc: 'Grinds garam masala nonstop.', baseCost: 100, cps: 1, emoji: '🌶️' },
+    { id: 'tandoor', name: 'Tandoor Oven', desc: 'Clay oven roasting chicken all day.', baseCost: 600, cps: 6, emoji: '🔥' },
+    { id: 'souschef', name: 'Sous Chef', desc: 'Preps butter and cream in bulk.', baseCost: 3500, cps: 35, emoji: '🧑‍🍳' },
+    { id: 'kitchen', name: 'Restaurant Kitchen', desc: 'A full line cranking out curry.', baseCost: 20000, cps: 180, emoji: '🍳' },
+    { id: 'truck', name: 'Butter Chicken Food Truck', desc: 'Takes the curry to the streets.', baseCost: 120000, cps: 900, emoji: '🚚' },
+    { id: 'factory', name: 'Curry Factory', desc: 'Mass-produces simmering sauce.', baseCost: 800000, cps: 5000, emoji: '🏭' },
+    { id: 'franchise', name: 'Global Franchise', desc: 'Butter chicken, worldwide, 24/7.', baseCost: 5000000, cps: 25000, emoji: '🌍' },
+  ];
+
+  // ---------- Click Upgrades ----------
+  const upgrades = [
+    { id: 'knife', name: 'Sharper Knife', desc: '+1 Butter Point per click.', cost: 50, type: 'flat', value: 1, bought: false, emoji: '🔪' },
+    { id: 'pan', name: 'Non-Stick Pan', desc: '+4 Butter Points per click.', cost: 400, type: 'flat', value: 4, bought: false, emoji: '🍳' },
+    { id: 'ladle', name: 'Golden Ladle', desc: '+10 Butter Points per click.', cost: 2500, type: 'flat', value: 10, bought: false, emoji: '🥄' },
+    { id: 'recipe', name: 'Secret Recipe', desc: 'Doubles Butter Points per click.', cost: 8000, type: 'mult', value: 2, bought: false, emoji: '📜' },
+    { id: 'masterchef', name: 'Master Chef Skills', desc: 'Doubles ALL Butter Point production.', cost: 50000, type: 'globalmult', value: 2, bought: false, emoji: '🎖️' },
+    { id: 'blessing', name: "Grandmother's Blessing", desc: 'Triples Butter Points per click.', cost: 250000, type: 'mult', value: 3, bought: false, emoji: '🙏' },
+    { id: 'empire', name: 'Curry Empire Status', desc: 'Doubles ALL Butter Point production again.', cost: 2000000, type: 'globalmult', value: 2, bought: false, emoji: '👑' },
+  ];
+
+  let globalMultiplier = 1;
+  let buyAmount = 1; // 1, 10, 100, or 'max'
+
+  buildings.forEach(b => state.buildings[b.id] = 0);
+
+  // ---------- Helpers ----------
+  function fmt(n) {
+    if (n < 1000) return Math.floor(n * 10) / 10 + '';
+    const units = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp'];
+    let i = 0;
+    let val = n;
+    while (val >= 1000 && i < units.length - 1) {
+      val /= 1000;
+      i++;
+    }
+    return val.toFixed(2) + units[i];
+  }
+
+  const GROWTH = 1.15;
+
+  function buildingCost(b, qty) {
+    // Cost of buying `qty` of building b starting from current owned count.
+    qty = qty || 1;
+    const owned = state.buildings[b.id];
+    // Sum of geometric series: baseCost * r^owned * (r^qty - 1) / (r - 1)
+    const cost = b.baseCost * Math.pow(GROWTH, owned) * (Math.pow(GROWTH, qty) - 1) / (GROWTH - 1);
+    return Math.ceil(cost);
+  }
+
+  function maxAffordable(b) {
+    // How many of building b can be bought right now, and total cost.
+    const owned = state.buildings[b.id];
+    let n = 0;
+    // Binary search upper bound, then refine (cheap since costs grow fast)
+    let lo = 0, hi = 1;
+    while (buildingCost(b, hi) <= state.coins && hi < 100000) {
+      hi *= 2;
+    }
+    lo = Math.floor(hi / 2);
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      if (buildingCost(b, mid) <= state.coins) {
+        lo = mid;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    n = lo;
+    return { qty: n, cost: n > 0 ? buildingCost(b, n) : 0 };
+  }
+
+  function currentBuyQty(b) {
+    if (buyAmount === 'max') {
+      return maxAffordable(b).qty || 1; // show at least 1 for display purposes
+    }
+    return buyAmount;
+  }
+
+  function totalCps() {
+    let total = 0;
+    buildings.forEach(b => {
+      total += b.cps * state.buildings[b.id];
+    });
+    return total * globalMultiplier * starMultiplier();
+  }
+
+  function clickPower() {
+    return (state.clickBase + state.clickFlatBonus) * state.clickMultiplier * globalMultiplier * starMultiplier();
+  }
+
+  function starMultiplier() {
+    return 1 + state.stars * 0.02;
+  }
+
+  function starsAvailable() {
+    return Math.floor(Math.sqrt(state.lifetime / 100000));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => t.classList.remove('show'), 1600);
+  }
+
+  // ---------- Rendering ----------
+  function renderBuildings() {
+    const container = document.getElementById('buildingsList');
+    container.innerHTML = '';
+    buildings.forEach(b => {
+      const owned = state.buildings[b.id];
+      let qty, cost;
+      if (buyAmount === 'max') {
+        const m = maxAffordable(b);
+        qty = m.qty;
+        cost = m.cost;
+      } else {
+        qty = buyAmount;
+        cost = buildingCost(b, qty);
+      }
+      const affordable = qty > 0 && state.coins >= cost;
+      const qtyLabel = buyAmount === 'max' ? (qty > 0 ? qty : 0) : qty;
+      const div = document.createElement('div');
+      div.className = 'item' + (affordable ? '' : ' disabled');
+      div.innerHTML = `
+        <div class="item-info">
+          <div class="item-name">${b.emoji} ${b.name} <span class="item-count">${owned}</span></div>
+          <div class="item-desc">${b.desc} — ${fmt(b.cps)} BP/s each</div>
+        </div>
+        <div class="item-cost">Buy ${qtyLabel}<br>${fmt(cost)} BP</div>
+      `;
+      div.addEventListener('click', () => buyBuilding(b));
+      container.appendChild(div);
+    });
+  }
+
+  function renderUpgrades() {
+    const container = document.getElementById('upgradesList');
+    container.innerHTML = '';
+    const remaining = upgrades.filter(u => !u.bought);
+    if (remaining.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);font-size:0.85rem;">All upgrades purchased — you are a true Butter Chicken master. 🏆</div>';
+      return;
+    }
+    remaining.forEach(u => {
+      const affordable = state.coins >= u.cost;
+      const div = document.createElement('div');
+      div.className = 'item' + (affordable ? '' : ' disabled');
+      div.innerHTML = `
+        <div class="item-info">
+          <div class="item-name">${u.emoji} ${u.name}</div>
+          <div class="item-desc">${u.desc}</div>
+        </div>
+        <div class="item-cost">${fmt(u.cost)} BP</div>
+      `;
+      div.addEventListener('click', () => buyUpgrade(u));
+      container.appendChild(div);
+    });
+  }
+
+  function renderStats() {
+    document.getElementById('coinCount').textContent = fmt(state.coins) + ' BP';
+    document.getElementById('clickPowerDisplay').textContent = fmt(clickPower());
+    document.getElementById('cpsDisplay').textContent = fmt(totalCps());
+    document.getElementById('lifetimeDisplay').textContent = fmt(state.lifetime);
+    document.getElementById('starCount').textContent = state.stars;
+    document.getElementById('starBonus').textContent = (state.stars * 2);
+    document.getElementById('starGain').textContent = starsAvailable();
+  }
+
+  function renderAll() {
+    renderBuildings();
+    renderUpgrades();
+    renderStats();
+  }
+
+  // ---------- Actions ----------
+  function buyBuilding(b) {
+    let qty, cost;
+    if (buyAmount === 'max') {
+      const m = maxAffordable(b);
+      qty = m.qty;
+      cost = m.cost;
+    } else {
+      qty = buyAmount;
+      cost = buildingCost(b, qty);
+    }
+    if (qty <= 0 || state.coins < cost) {
+      showToast("Not enough Butter Points!");
+      return;
+    }
+    state.coins -= cost;
+    state.buildings[b.id] += qty;
+    renderAll();
+  }
+
+  function buyUpgrade(u) {
+    if (state.coins < u.cost) {
+      showToast("Not enough Butter Points!");
+      return;
+    }
+    state.coins -= u.cost;
+    u.bought = true;
+    if (u.type === 'flat') state.clickFlatBonus += u.value;
+    if (u.type === 'mult') state.clickMultiplier *= u.value;
+    if (u.type === 'globalmult') globalMultiplier *= u.value;
+    showToast(u.name + " purchased!");
+    renderAll();
+  }
+
+  function doClick(e) {
+    const gain = clickPower();
+    state.coins += gain;
+    state.lifetime += gain;
+    spawnFloatText(gain, e);
+    renderStats();
+  }
+
+  function spawnFloatText(amount, e) {
+    const area = document.querySelector('.click-area');
+    const span = document.createElement('div');
+    span.className = 'float-text';
+    span.textContent = '+' + fmt(amount);
+    const rect = area.getBoundingClientRect();
+    let x = 100, y = 90;
+    if (e && e.clientX) {
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+    }
+    span.style.left = x + 'px';
+    span.style.top = y + 'px';
+    span.style.setProperty('--dx', (Math.random() * 40 - 20) + 'px');
+    area.appendChild(span);
+    setTimeout(() => span.remove(), 900);
+  }
+
+  function bounceBowl() {
+    const bowl = document.getElementById('bowl');
+    bowl.style.transform = 'scale(0.9)';
+    setTimeout(() => { bowl.style.transform = 'scale(1)'; }, 90);
+  }
+
+  function doPrestige() {
+    const gain = starsAvailable();
+    if (gain <= 0) {
+      showToast("Earn more Butter Points before retiring!");
+      return;
+    }
+    if (!confirm(`Retire your restaurant for ${gain} Michelin Star(s)? This resets your coins, buildings, and upgrades — but keeps your permanent bonus.`)) {
+      return;
+    }
+    state.stars += gain;
+    state.coins = 0;
+    state.lifetime = 0;
+    state.clickBase = 1;
+    state.clickFlatBonus = 0;
+    state.clickMultiplier = 1;
+    globalMultiplier = 1;
+    buildings.forEach(b => state.buildings[b.id] = 0);
+    upgrades.forEach(u => u.bought = false);
+    showToast(`Retired! Earned ${gain} Michelin Star(s).`);
+    renderAll();
+  }
+
+  // ---------- Game Loop ----------
+  setInterval(() => {
+    const gain = totalCps() / 10; // ticking 10x/sec
+    if (gain > 0) {
+      state.coins += gain;
+      state.lifetime += gain;
+      renderStats();
+      // refresh affordability styling occasionally
+    }
+  }, 100);
+
+  setInterval(renderAll, 800); // periodically refresh buy-button availability
+
+  // ---------- Event Wiring ----------
+  document.getElementById('bowl').addEventListener('click', (e) => {
+    doClick(e);
+    bounceBowl();
+  });
+
+  document.getElementById('prestigeBtn').addEventListener('click', doPrestige);
+
+  document.getElementById('renameBtn').addEventListener('click', () => {
+    const row = document.querySelector('.shop-name-row');
+    const displaySpan = document.getElementById('shopNameDisplay');
+    if (document.getElementById('shopNameInput')) return; // already editing
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'shopNameInput';
+    input.value = state.shopName;
+    input.maxLength = 40;
+
+    displaySpan.style.display = 'none';
+    row.insertBefore(input, displaySpan);
+    input.focus();
+    input.select();
+
+    function commit() {
+      const val = input.value.trim();
+      state.shopName = val.length > 0 ? val : state.shopName;
+      displaySpan.textContent = state.shopName;
+      displaySpan.style.display = 'inline';
+      input.remove();
+    }
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') commit();
+      if (e.key === 'Escape') { displaySpan.style.display = 'inline'; input.remove(); }
+    });
+    input.addEventListener('blur', commit);
+  });
+
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('buildingsList').style.display = tab === 'buildings' ? 'block' : 'none';
+      document.getElementById('upgradesList').style.display = tab === 'upgrades' ? 'block' : 'none';
+      document.getElementById('buyAmountTabs').style.display = tab === 'buildings' ? 'flex' : 'none';
+    });
+  });
+
+  document.querySelectorAll('.amount-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const val = btn.dataset.amount;
+      buyAmount = val === 'max' ? 'max' : parseInt(val, 10);
+      renderBuildings();
+    });
+  });
+
+  // ---------- Init ----------
+  renderAll();
+
+})();
+</script>
+
+</body>
+</html>
